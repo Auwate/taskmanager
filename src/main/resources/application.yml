@@ -1,0 +1,23 @@
+spring:
+  application:
+  name: taskmanager
+  
+  # Server settings  
+server:
+  port: 9090
+  servlet:
+    context-path: "/api"
+  
+  # Logging  
+logging:
+  level:
+    root: "INFO"
+  file:
+    name: "logs/application.log"
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%t] %p %c{36} - %m%n"
+  
+  # Custom properties  
+app:
+  name: "Task Manager App"
+  version: "1.0"
