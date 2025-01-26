@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exception.server.ResourceNotFoundException;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
 import org.slf4j.Logger;
@@ -8,7 +9,6 @@ import org.slf4j.event.Level;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -31,13 +31,16 @@ public class TaskService {
 
     }
 
-    public Optional<Task> getTaskById(Long id) {
+    public Task getTaskById(Long id) {
 
         if (logger.isEnabledForLevel(Level.DEBUG)) {
             logger.debug("Successfully called findById()");
         }
 
-        return taskRepository.findById(id);
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The provided resource could not be found in the database."
+                ));
 
     }
 
@@ -51,13 +54,16 @@ public class TaskService {
 
     }
 
-    public Optional<Task> deleteTask (Long id) {
+    public Task deleteTask (Long id) {
 
         if (logger.isEnabledForLevel(Level.DEBUG)) {
             logger.debug("Successfully called delete().");
         }
 
-        return taskRepository.delete(id);
+        return taskRepository.delete(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The provided resource could not be found in the database."
+                ));
 
     }
 

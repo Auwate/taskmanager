@@ -1,5 +1,6 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.dto.ApiResponse;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.service.TaskService;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -27,7 +29,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getTasks() {
+    public ResponseEntity<ApiResponse<List<Task>>> getTasks() {
 
         logger.info("GET HTTP request received at /api/tasks/");
 
@@ -35,12 +37,18 @@ public class TaskController {
             logger.debug("Successfully called getAllTasks()");
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTasks());
+        ApiResponse<List<Task>> response = ApiResponse.of(
+                HttpStatus.OK.value(),
+                "Success",
+                taskService.getAllTasks()
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
     @PostMapping
-    public ResponseEntity<URI> createTask(@RequestBody Task task) {
+    public ResponseEntity<ApiResponse<URI>> createTask(@RequestBody Task task) {
 
         logger.info("POST HTTP request received at /api/tasks/");
 
@@ -48,16 +56,21 @@ public class TaskController {
             logger.debug("Successfully called createTask()");
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        ApiResponse<URI> response = ApiResponse.of(
+                HttpStatus.OK.value(),
+                "Success",
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
                         .buildAndExpand(taskService.createTask(task))
-                        .toUri());
+                        .toUri()
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Task>> deleteTask(@PathVariable Long id) {
 
         logger.info("Delete HTTP request received at /api/tasks/{}", id);
 
@@ -65,14 +78,20 @@ public class TaskController {
             logger.debug("Successfully called deleteTask()");
         }
 
-        return taskService.deleteTask(id)
-                .map((task) -> ResponseEntity.status(HttpStatus.OK).body("Task " + task.getName() + " deleted."))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found."));
+        Task task = taskService.deleteTask(id);
+
+        ApiResponse<Task> response = ApiResponse.of(
+                HttpStatus.OK.value(),
+                "Success",
+                task
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTask(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Task>> getTask(@PathVariable Long id) {
 
         logger.info("Get HTTP request received at /api/tasks/{}", id);
 
@@ -80,9 +99,13 @@ public class TaskController {
             logger.debug("Successfully called getTaskByID()");
         }
 
-        return taskService.getTaskById(id)
-                .map((task) -> ResponseEntity.status(HttpStatus.OK).body(task))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        ApiResponse<Task> response = ApiResponse.of(
+                HttpStatus.OK.value(),
+                "Success",
+                taskService.getTaskById(id)
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
