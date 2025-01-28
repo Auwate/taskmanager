@@ -1,3 +1,0 @@
-2025-01-24T11:38:25.211-05:00  INFO 4572 --- [main] c.e.t.TaskManagerApplicationTests        : Starting TaskManagerApplicationTests using Java 21.0.5 with PID 4572 (started by auwat in D:\IdeaProjects\taskmanager)
-2025-01-24T11:38:25.226-05:00  INFO 4572 --- [main] c.e.t.TaskManagerApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2025-01-24T11:38:26.770-05:00  INFO 4572 --- [main] c.e.t.TaskManagerApplicationTests        : Started TaskManagerApplicationTests in 2.247 seconds (process running for 4.371)

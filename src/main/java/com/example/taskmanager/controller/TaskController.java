@@ -57,7 +57,7 @@ public class TaskController {
         }
 
         ApiResponse<URI> response = ApiResponse.of(
-                HttpStatus.OK.value(),
+                HttpStatus.CREATED.value(),
                 "Success",
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -65,7 +65,7 @@ public class TaskController {
                         .toUri()
         );
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
     }
 

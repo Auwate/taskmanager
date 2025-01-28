@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiResponseTest {
+public class ApiResponseTests {
 
     static List<ApiResponse<Task>> getTaskResponses() {
         return List.of(
@@ -53,7 +53,7 @@ public class ApiResponseTest {
     @MethodSource("getTaskResponses")
     void testTaskGeneric_Success(ApiResponse<Task> response) {
 
-        
+
 
     }
 
