@@ -38,7 +38,7 @@ jobs:
     - name: Log into Docker Hub
       run: echo "${{ secrets.DOCKER_HUB_PASS }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
 
-    - name: Build and push
+    - name: Build, tag, and push
       run: |
         docker build -t "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest .
         docker push "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
@@ -51,4 +51,4 @@ jobs:
       with:
         app-name: auwate-taskmanager
         publish-profile: "${{ secrets.AZURE_PUBLISH_PROFILE }}"
-        images: 'docker.io/auwate/taskmanager:latest'
+        images: 'docker.io/${{ secrets.DOCKER_HUB_USER }}/taskmanager:latest'
