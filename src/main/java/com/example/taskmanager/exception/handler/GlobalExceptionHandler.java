@@ -1,11 +1,11 @@
 package com.example.taskmanager.exception.handler;
 
 import com.example.taskmanager.dto.ApiResponse;
+import com.example.taskmanager.exception.server.DatabaseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.example.taskmanager.exception.server.ResourceNotFoundException;
 
@@ -56,6 +56,21 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR). body(response);
+
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<ApiResponse<String>> handleDatabaseException(DatabaseException exception) {
+
+        String message = "The database could not fulfill your request.";
+
+        ApiResponse<String> response = ApiResponse.of(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                message,
+                exception.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 
     }
 

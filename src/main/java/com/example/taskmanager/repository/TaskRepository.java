@@ -36,7 +36,7 @@ public class TaskRepository {
     public Optional<Task> findById(Long id) {
 
         if (logger.isEnabledForLevel(Level.DEBUG)) {
-            logger.debug("Successfully tried finding data by ID.");
+            logger.debug("Successfully tried finding data by ID for {}", id);
         }
 
         return Optional.ofNullable(taskMap.get(id));
@@ -57,10 +57,26 @@ public class TaskRepository {
     public Optional<Task> delete(Long id) {
 
         if (logger.isEnabledForLevel(Level.DEBUG)) {
-            logger.debug("Successfully tried deleting data.");
+            logger.debug("Successfully tried deleting data for {}", id);
         }
 
         return Optional.ofNullable(taskMap.remove(id));
+
+    }
+
+    public Optional<Task> update(Long id, Task task) {
+
+        if (logger.isEnabledForLevel(Level.DEBUG)) {
+            logger.debug("Successfully tried updating data with {}", id);
+        }
+
+        if (!taskMap.containsKey(id)) {
+            return Optional.empty();
+        }
+
+        taskMap.put(id, task);
+
+        return Optional.of(taskMap.get(id));
 
     }
 
