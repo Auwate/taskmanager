@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exception.server.DatabaseException;
 import com.example.taskmanager.exception.server.ResourceNotFoundException;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
@@ -64,6 +65,23 @@ public class TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "The provided resource could not be found in the database."
                 ));
+
+    }
+
+    public void updateTask(Long id, Task task) {
+
+        if (logger.isEnabledForLevel(Level.DEBUG)) {
+            logger.debug("Successfully called update().");
+        }
+
+        Task updatedTask = taskRepository.update(id, task)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "The provided resource could not be found in the database."
+                ));
+
+        if (!task.equals(updatedTask)) {
+            throw new DatabaseException("There was an issue updating the database.");
+        }
 
     }
 

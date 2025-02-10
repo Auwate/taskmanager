@@ -13,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -72,7 +71,7 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Task>> deleteTask(@PathVariable Long id) {
 
-        logger.info("Delete HTTP request received at /api/tasks/{}", id);
+        logger.info("DELETE HTTP request received at /api/tasks/{}", id);
 
         if (logger.isEnabledForLevel(Level.DEBUG)) {
             logger.debug("Successfully called deleteTask()");
@@ -93,7 +92,7 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Task>> getTask(@PathVariable Long id) {
 
-        logger.info("Get HTTP request received at /api/tasks/{}", id);
+        logger.info("GET HTTP request received at /api/tasks/{}", id);
 
         if (logger.isEnabledForLevel(Level.DEBUG)) {
             logger.debug("Successfully called getTaskByID()");
@@ -103,6 +102,27 @@ public class TaskController {
                 HttpStatus.OK.value(),
                 "Success",
                 taskService.getTaskById(id)
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> updateTask(@PathVariable Long id, @RequestBody Task task) {
+
+        logger.info("PUT HTTP Request received at /api/tasks/{}", id);
+
+        if (logger.isEnabledForLevel(Level.DEBUG)) {
+            logger.debug("Successfully called updateTaskById(id)");
+        }
+
+        taskService.updateTask(id, task);
+
+        ApiResponse<Void> response = ApiResponse.of(
+                HttpStatus.OK.value(),
+                "Success",
+                null
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(response);

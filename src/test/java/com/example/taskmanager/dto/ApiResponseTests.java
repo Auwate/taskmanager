@@ -1,27 +1,18 @@
 package com.example.taskmanager.dto;
 
-import com.example.taskmanager.model.Task;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ApiResponseTests {
-
-    static List<ApiResponse<Task>> getTaskResponses() {
-        return List.of(
-                new ApiResponse<>(200, "Success", new Task("Task 1", "Description 1")),
-                new ApiResponse<>(400, "Bad request", new Task("Task 2", "Description 2")),
-                new ApiResponse<>(500, "Internal error", new Task("Task 3", "Description 3"))
-        );
-    }
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -29,7 +20,7 @@ public class ApiResponseTests {
     @CsvSource({"200, Success, Inputted", "201, Created, Item created", "300, Moved, Item is moved."})
     void testStringGeneric_Success(int status, String message, String data) {
 
-        ApiResponse<String> response = new ApiResponse<>(status, message, data);
+        ApiResponse<String> response = ApiResponse.of(status, message, data);
 
         assertEquals(status, response.getStatus());
         assertEquals(message, response.getMessage());
@@ -41,7 +32,7 @@ public class ApiResponseTests {
     @CsvSource({"200, Success", "201, Created", "300, Moved"})
     void testStringGenericEdge_Success(int status, String message) {
 
-        ApiResponse<String> response = new ApiResponse<>(status, message, null);
+        ApiResponse<String> response = ApiResponse.of(status, message, null);
 
         assertEquals(status, response.getStatus());
         assertEquals(message, response.getMessage());
@@ -49,11 +40,20 @@ public class ApiResponseTests {
 
     }
 
-    @ParameterizedTest
-    @MethodSource("getTaskResponses")
-    void testTaskGeneric_Success(ApiResponse<Task> response) {
+    @Test
+    void testTimeStamp_Success() {
 
+        ApiResponse<String> response = ApiResponse.of(
+                200,
+                "Success",
+                "Data",
+                LocalDateTime.of(2025, 2, 10, 10, 20, 30)
+        );
 
+        assertEquals(200, response.getStatus());
+        assertEquals("Success", response.getMessage());
+        assertEquals("Data", response.getData());
+        assertEquals("2025-02-10 10:20:30", response.getTimestamp());
 
     }
 

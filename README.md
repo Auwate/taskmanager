@@ -39,7 +39,7 @@ Features are constantly being pushed out, but the following contains the list of
 
 ## /api/tasks - GET
 
-Returns all the tasks stored in the database up to the point
+Returns all the tasks stored in the database up to that point
 
 ## /api/tasks - POST
 
@@ -51,4 +51,4 @@ Returns the task stored in the database based on the ID you provide
 
 ## /api/tasks/{TASK_ID} - DELETE
 
-Deletes the task from the database based on the ID you provide
+Deletes and returns the task from the database, based on the ID you provide

@@ -1,6 +1,8 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exception.server.DatabaseException;
 import com.example.taskmanager.exception.server.ResourceNotFoundException;
+import com.example.taskmanager.model.Tag;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +31,12 @@ public class TaskManagerServiceTests {
 
     @BeforeEach
     void setUp() {
-        this.testTask = new Task("Test task", "N/A");
+        this.testTask = new Task(
+                "Test task",
+                "N/A",
+                0,
+                Tag.of("Test tag", 0, 0, 0)
+        );
     }
 
     @Test
@@ -120,6 +127,55 @@ public class TaskManagerServiceTests {
         );
 
         verify(taskRepository, times(1)).delete(1L);
+
+    }
+
+    @Test
+    void testUpdateTask_Success() {
+
+        when(taskRepository.update(1L, testTask)).thenReturn(Optional.of(testTask));
+
+        taskService.updateTask(1L, testTask);
+
+        verify(taskRepository, times(1)).update(1L, testTask);
+
+    }
+
+    @Test
+    void testUpdateTask_Failure_NotFound() {
+
+        when(taskRepository.update(1L, testTask)).thenReturn(Optional.empty());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> taskService.updateTask(1L, testTask)
+        );
+
+        verify(taskRepository, times(1)).update(1L, testTask);
+
+    }
+
+    @Test
+    void testUpdateTask_Failure_Database() {
+
+        when(taskRepository.update(1L, testTask))
+                .thenReturn(
+                        Optional.of(
+                                new Task(
+                                        "Wrong",
+                                        "Wrong",
+                                        0,
+                                        Tag.of("Wrong tag", 1, 1, 1)
+                                )
+                        )
+                );
+
+        assertThrows(
+                DatabaseException.class,
+                () -> taskService.updateTask(1L, testTask)
+        );
+
+        verify(taskRepository, times(1)).update(1L, testTask);
 
     }
 
