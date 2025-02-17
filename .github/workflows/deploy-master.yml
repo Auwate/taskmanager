@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Deploy via SSH
-      uses: appleboy/ssh-action@v0.1.0
+      uses: appleboy/ssh-action@v1.2.0
       with:
         host: ${{ secrets.ORACLE_HOST }}
         username: ${{ secrets.ORACLE_USER }}
