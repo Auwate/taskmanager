@@ -55,7 +55,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: 22
         script: |
-          docker stop taskmanager || true
-          docker rm taskmanager || true
-          docker pull "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
-          docker run -d --name taskmanager -p 9090:9090 "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
+          sudo docker stop taskmanager || true
+          sudo docker rm taskmanager || true
+          sudo docker pull "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
+          sudo docker run -d --name taskmanager -p 9090:9090 "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
