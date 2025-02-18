@@ -2,9 +2,9 @@ spring:
   application:
   name: taskmanager
   datasource:
-    url: jdbc:oracle:thin:@${ ORACLE_DB_CONNECTION_STRING }
-    username: ${ ORACLE_DB_USER }
-    password: ${ ORACLE_DB_PASSWORD }
+    url: jdbc:oracle:thin:${ORACLE_DB_CONNECTION_STRING}
+    username: ${ORACLE_DB_USER}
+    password: ${ORACLE_DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
