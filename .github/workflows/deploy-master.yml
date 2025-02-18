@@ -58,7 +58,7 @@ jobs:
           sudo docker stop taskmanager || true
           sudo docker rm taskmanager || true
           sudo docker pull "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
-          export ORACLE_DB_CONNECTION_STRING=${{ secrets.ORACLE_DB_CONNECTION_STRING }}
-          export ORACLE_DB_USER=${{ secrets.ORACLE_DB_USER }}
-          export ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
+          export ORACLE_DB_CONNECTION_STRING="${{ secrets.ORACLE_DB_CONNECTION_STRING }}"
+          export ORACLE_DB_USER="${{ secrets.ORACLE_DB_USER }}"
+          export ORACLE_DB_PASSWORD="${{ secrets.ORACLE_DB_PASSWORD }}"
           sudo docker run -d --name taskmanager -p 9090:9090 "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
