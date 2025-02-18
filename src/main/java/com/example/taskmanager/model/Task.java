@@ -18,6 +18,7 @@ public class Task {
     private Integer priority;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
     @OneToOne(cascade = CascadeType.PERSIST)
