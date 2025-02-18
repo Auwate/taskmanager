@@ -1,32 +1,52 @@
 package com.example.taskmanager.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "TASK")
 public class Task {
+
+    @Id
+    @SequenceGenerator(name = "task_seq", sequenceName = "TASK_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq")
+    private Long id;
 
     private String name;
     private String description;
-    private int priority;
+    private Integer priority;
+
+    @OneToOne(cascade = CascadeType.PERSIST)
     private Tag tag;
 
     public Task(
+            Long id,
             String name,
             String description,
-            int priority,
+            Integer priority,
             Tag tag
     ) {
         this.name = name;
         this.description = description;
         this.priority = priority;
         this.tag = tag;
+        this.id = id;
     }
 
+    public Task() {}
+
     public static Task of(
+            Long id,
             String name,
             String description,
-            int priority,
+            Integer priority,
             Tag tag
     ) {
-        return new Task(name, description, priority, tag);
+        return new Task(id, name, description, priority, tag);
     }
+
+    public Long getId() { return this.id; }
+
+    public void setId(Long id) { this.id = id; }
 
     public String getName() {
         return this.name;
@@ -42,7 +62,7 @@ public class Task {
 
     public void setDescription (String description) { this.description = description; }
 
-    public int getPriority() {
+    public Integer getPriority() {
         return priority;
     }
 
@@ -60,10 +80,16 @@ public class Task {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj instanceof Task target &&
+                this.getId() != null && target.getId() != null &&
+                this.getId().equals(target.getId())
+        ) {
+            return true;
+        }
         return obj instanceof Task target &&
                 this.getName().equals(target.getName()) &&
                 this.getDescription().equals(target.getDescription()) &&
-                this.getPriority() == target.getPriority() &&
+                this.getPriority().equals(target.getPriority()) &&
                 this.getTag().equals(target.getTag());
     }
 

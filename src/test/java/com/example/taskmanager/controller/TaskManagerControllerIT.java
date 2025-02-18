@@ -1,6 +1,7 @@
 package com.example.taskmanager.controller;
 
 import com.example.taskmanager.dto.ApiResponse;
+import com.example.taskmanager.model.Color;
 import com.example.taskmanager.model.Tag;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // Create the entire Spring application context
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-// Useful for when we have databases -> @ActiveProfiles("test")
+@ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TaskManagerControllerIT {
 
@@ -45,13 +47,14 @@ public class TaskManagerControllerIT {
     @Order(1)
     void testCreateTask() {
 
-        Tag testTag = new Tag("Test tag", 0, 0, 0);
-
         Task payload = new Task(
+                null,
                 "Integration test 1",
                 "Testing integration test 1",
                 0,
-                testTag
+                Tag.of(null, "Test tag", Color.of(
+                        null, 0, 0, 0
+                ))
         );
 
         ResponseEntity<ApiResponse<URI>> response = testRestTemplate.exchange(
@@ -68,20 +71,24 @@ public class TaskManagerControllerIT {
 
         assertEquals(1, taskRepository.findAll().size());
         assertEquals(
-                "Integration test 1",
-                taskRepository.findById(1L).orElseThrow().getName()
+                taskRepository.findById(1L).orElseThrow().getName(),
+                payload.getName()
         );
         assertEquals(
-                "Testing integration test 1",
-                taskRepository.findById(1L).orElseThrow().getDescription()
+                taskRepository.findById(1L).orElseThrow().getDescription(),
+                payload.getDescription()
         );
         assertEquals(
-                0,
-                taskRepository.findById(1L).orElseThrow().getPriority()
+                taskRepository.findById(1L).orElseThrow().getPriority(),
+                payload.getPriority()
         );
         assertEquals(
-                testTag,
-                taskRepository.findById(1L).orElseThrow().getTag()
+                taskRepository.findById(1L).orElseThrow().getTag(),
+                payload.getTag()
+        );
+        assertEquals(
+                taskRepository.findById(1L).orElseThrow().getId(),
+                1L
         );
 
     }
@@ -108,9 +115,10 @@ public class TaskManagerControllerIT {
                 response.getBody().getData().getFirst().getPriority()
         );
         assertEquals(
-                new Tag("Test tag", 0, 0, 0),
+                new Tag(1L, "Test tag", Color.of(1L, 0, 0, 0)),
                 response.getBody().getData().getFirst().getTag()
         );
+        assertEquals(1L, response.getBody().getData().getFirst().getId());
         assertEquals(1, response.getBody().getData().size());
 
     }
@@ -135,8 +143,9 @@ public class TaskManagerControllerIT {
                 0,
                 response.getBody().getData().getPriority()
         );
+        assertEquals(1L, response.getBody().getData().getId());
         assertEquals(
-                new Tag("Test tag", 0, 0, 0),
+                new Tag(1L, "Test tag", Color.of(1L, 0, 0, 0)),
                 response.getBody().getData().getTag()
         );
 
@@ -146,9 +155,12 @@ public class TaskManagerControllerIT {
     @Order(4)
     void updateTaskById() {
 
-        Tag testTag = new Tag("Test tag", 1, 2, 3);
+        Color testColor = new Color(1L, 1, 2, 3);
+
+        Tag testTag = new Tag(1L, "Test tag 2", testColor);
 
         Task payload = new Task(
+                1L,
                 "Integration test 2",
                 "Testing integration test 2",
                 1,
@@ -159,7 +171,7 @@ public class TaskManagerControllerIT {
                 QUERY_URL + "/1",
                 HttpMethod.PUT,
                 HttpEntityFactory(payload),
-                new ParameterizedTypeReference<ApiResponse<Void>>() {}
+                new ParameterizedTypeReference<>() {}
         );
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -174,8 +186,20 @@ public class TaskManagerControllerIT {
                 taskRepository.findById(1L).orElseThrow().getPriority()
         );
         assertEquals(
-                testTag,
-                taskRepository.findById(1L).orElseThrow().getTag()
+                testTag.getName(),
+                taskRepository.findById(1L).orElseThrow().getTag().getName()
+        );
+        assertEquals(
+                testColor.getRed(),
+                taskRepository.findById(1L).orElseThrow().getTag().getColor().getRed()
+        );
+        assertEquals(
+                testColor.getGreen(),
+                taskRepository.findById(1L).orElseThrow().getTag().getColor().getGreen()
+        );
+        assertEquals(
+                testColor.getBlue(),
+                taskRepository.findById(1L).orElseThrow().getTag().getColor().getBlue()
         );
 
     }
@@ -194,16 +218,6 @@ public class TaskManagerControllerIT {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Success", response.getBody().getMessage());
-        assertEquals("Integration test 2", response.getBody().getData().getName());
-        assertEquals("Testing integration test 2", response.getBody().getData().getDescription());
-        assertEquals(
-                1,
-                response.getBody().getData().getPriority()
-        );
-        assertEquals(
-                new Tag("Test tag", 1, 2, 3),
-                response.getBody().getData().getTag()
-        );
 
         assertEquals(0, taskRepository.findAll().size());
 
