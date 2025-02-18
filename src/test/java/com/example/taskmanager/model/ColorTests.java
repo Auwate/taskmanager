@@ -14,13 +14,13 @@ public class ColorTests {
 
     @BeforeEach
     void setUp() {
-        this.color = new Color(1, 2, 3);
+        this.color = new Color(1L, 1, 2, 3);
     }
 
     @Test
     void testValidColor_Success() {
 
-        Color color = new Color(1, 2, 3);
+        Color color = new Color(1L, 1, 2, 3);
 
         assertEquals(1, color.getRed());
         assertEquals(2, color.getGreen());
@@ -33,17 +33,17 @@ public class ColorTests {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Color(-1, 0, 0)
+                () -> new Color(1L,-1, 0, 0)
         );
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Color(0, 0, 256)
+                () -> new Color(1L,0, 0, 256)
         );
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Color(255, -100, 255)
+                () -> new Color(1L,255, -100, 255)
         );
 
     }
@@ -51,7 +51,7 @@ public class ColorTests {
     @Test
     void testColorEquals_Success() {
 
-        Color testColor = new Color(1, 2, 3);
+        Color testColor = new Color(1L,1, 2, 3);
 
         assertEquals(testColor, this.color);
 
@@ -60,7 +60,25 @@ public class ColorTests {
     @Test
     void testColorEquals_Failure() {
 
-        Color wrongColor = new Color(3, 2, 1);
+        Color wrongColor = new Color(null,3, 2, 1);
+
+        assertNotEquals(wrongColor, this.color);
+
+    }
+
+    @Test
+    void testColorEqualsNullID_Success() {
+
+        Color testColor = new Color(null, 1, 2, 3);
+
+        assertEquals(testColor, this.color);
+
+    }
+
+    @Test
+    void testColorEqualsNullId_Failure() {
+
+        Color wrongColor = new Color(null, 2, 2, 1);
 
         assertNotEquals(wrongColor, this.color);
 

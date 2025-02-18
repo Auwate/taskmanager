@@ -60,7 +60,7 @@ public class TaskController {
                 "Success",
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
-                        .buildAndExpand(taskService.createTask(task))
+                        .buildAndExpand(taskService.createTask(task).getId())
                         .toUri()
         );
 
@@ -69,7 +69,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Task>> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTask(@PathVariable Long id) {
 
         logger.info("DELETE HTTP request received at /api/tasks/{}", id);
 
@@ -77,12 +77,12 @@ public class TaskController {
             logger.debug("Successfully called deleteTask()");
         }
 
-        Task task = taskService.deleteTask(id);
+        taskService.deleteTask(id);
 
-        ApiResponse<Task> response = ApiResponse.of(
+        ApiResponse<Void> response = ApiResponse.of(
                 HttpStatus.OK.value(),
                 "Success",
-                task
+                null
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -117,7 +117,11 @@ public class TaskController {
             logger.debug("Successfully called updateTaskById(id)");
         }
 
-        taskService.updateTask(id, task);
+        try {
+            taskService.updateTask(id, task);
+        } catch (Exception e) {
+            logger.error("Exception: {}", e.getMessage());
+        }
 
         ApiResponse<Void> response = ApiResponse.of(
                 HttpStatus.OK.value(),

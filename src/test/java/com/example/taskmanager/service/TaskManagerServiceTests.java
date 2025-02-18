@@ -2,6 +2,7 @@ package com.example.taskmanager.service;
 
 import com.example.taskmanager.exception.server.DatabaseException;
 import com.example.taskmanager.exception.server.ResourceNotFoundException;
+import com.example.taskmanager.model.Color;
 import com.example.taskmanager.model.Tag;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
@@ -27,15 +28,20 @@ public class TaskManagerServiceTests {
     @InjectMocks
     private TaskService taskService;
 
-    private Task testTask;
+    private Task testTask = new Task();
 
     @BeforeEach
     void setUp() {
         this.testTask = new Task(
+                null,
                 "Test task",
                 "N/A",
                 0,
-                Tag.of("Test tag", 0, 0, 0)
+                Tag.of(
+                        null, "Test tag", Color.of(
+                                1L, 0, 0, 0
+                        )
+                )
         );
     }
 
@@ -93,89 +99,63 @@ public class TaskManagerServiceTests {
     @Test
     void testCreateTask_Success() {
 
-        when(taskRepository.save(this.testTask)).thenReturn(1L);
+        when(taskRepository.saveAndFlush(this.testTask)).thenReturn(this.testTask);
 
-        Long response = taskService.createTask(this.testTask);
+        Task response = taskService.createTask(this.testTask);
 
-        assertEquals(1L, response);
+        assertEquals(this.testTask, response);
 
-        verify(taskRepository, times(1)).save(this.testTask);
+        verify(taskRepository, times(1)).saveAndFlush(this.testTask);
 
     }
 
     @Test
     void testDeleteTask_Success() {
 
-        when(taskRepository.delete(1L)).thenReturn(Optional.of(this.testTask));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(this.testTask));
 
-        Task response = taskService.deleteTask(1L);
+        taskService.deleteTask(1L);
 
-        assertEquals(this.testTask.getName(), response.getName());
-
-        verify(taskRepository, times(1)).delete(1L);
+        verify(taskRepository, times(1)).delete(this.testTask);
+        verify(taskRepository, times(1)).findById(1L);
 
     }
 
     @Test
     void testDeleteTask_Failure() {
 
-        when(taskRepository.delete(1L)).thenReturn(Optional.empty());
-
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> taskService.deleteTask(1L)
         );
 
-        verify(taskRepository, times(1)).delete(1L);
+        verify(taskRepository, times(1)).findById(1L);
 
     }
 
     @Test
     void testUpdateTask_Success() {
 
-        when(taskRepository.update(1L, testTask)).thenReturn(Optional.of(testTask));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(this.testTask));
 
         taskService.updateTask(1L, testTask);
 
-        verify(taskRepository, times(1)).update(1L, testTask);
+        verify(taskRepository, times(1)).findById(1L);
+        verify(taskRepository, times(1)).saveAndFlush(testTask);
 
     }
 
     @Test
     void testUpdateTask_Failure_NotFound() {
 
-        when(taskRepository.update(1L, testTask)).thenReturn(Optional.empty());
+        when(taskRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(
                 ResourceNotFoundException.class,
                 () -> taskService.updateTask(1L, testTask)
         );
 
-        verify(taskRepository, times(1)).update(1L, testTask);
-
-    }
-
-    @Test
-    void testUpdateTask_Failure_Database() {
-
-        when(taskRepository.update(1L, testTask))
-                .thenReturn(
-                        Optional.of(
-                                new Task(
-                                        "Wrong",
-                                        "Wrong",
-                                        0,
-                                        Tag.of("Wrong tag", 1, 1, 1)
-                                )
-                        )
-                );
-
-        assertThrows(
-                DatabaseException.class,
-                () -> taskService.updateTask(1L, testTask)
-        );
-
-        verify(taskRepository, times(1)).update(1L, testTask);
+        verify(taskRepository, times(1)).findById(1L);
 
     }
 

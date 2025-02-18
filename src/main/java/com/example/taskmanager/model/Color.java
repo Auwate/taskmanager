@@ -1,20 +1,32 @@
 package com.example.taskmanager.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "COLOR")
 public class Color {
+
+    @Id
+    @SequenceGenerator(name = "color_seq", sequenceName = "COLOR_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "color_seq")
+    private Long id;
 
     private int red;
     private int green;
     private int blue;
 
-    public Color(int red, int green, int blue) {
+    public Color(Long id, int red, int green, int blue) {
         validate(red, green, blue);
         this.red = red;
         this.green = green;
         this.blue = blue;
+        this.id = id;
     }
 
-    public static Color of(int red, int green, int blue) {
-        return new Color(red, green, blue);
+    public Color() {}
+
+    public static Color of(Long id, int red, int green, int blue) {
+        return new Color(id, red, green, blue);
     }
 
     private void validate(int red, int green, int blue) {
@@ -22,6 +34,10 @@ public class Color {
             throw new IllegalArgumentException("RGB values must be between 0-255.");
         }
     }
+
+    public Long getId() { return id; }
+
+    public void setId(Long id) { this.id = id; }
 
     public int getRed() {
         return red;
@@ -49,6 +65,12 @@ public class Color {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj instanceof Color target &&
+                this.getId() != null && target.getId() != null &&
+                this.getId().equals(target.getId())
+        ) {
+            return true;
+        }
         return obj instanceof Color target &&
                 this.getRed() == target.getRed() &&
                 this.getGreen() == target.getGreen() &&
