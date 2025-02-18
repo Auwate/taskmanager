@@ -2,6 +2,8 @@ package com.example.taskmanager.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "TASK")
 public class Task {
@@ -14,6 +16,9 @@ public class Task {
     private String name;
     private String description;
     private Integer priority;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     private Tag tag;
@@ -44,6 +49,14 @@ public class Task {
         return new Task(id, name, description, priority, tag);
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Long getId() { return this.id; }
 
     public void setId(Long id) { this.id = id; }
@@ -66,7 +79,7 @@ public class Task {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(Integer priority) {
         this.priority = priority;
     }
 
