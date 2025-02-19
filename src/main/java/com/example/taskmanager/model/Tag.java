@@ -1,5 +1,6 @@
 package com.example.taskmanager.model;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,21 +12,29 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tag_seq")
     private Long id;
 
+    @Column(name = "name")
     private String name;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne
+    @JoinColumn(name = "task_id", referencedColumnName = "id")
+    @JsonBackReference
+    private Task task;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "tag", orphanRemoval = true)
+    @JsonManagedReference
     private Color color;
 
-    public Tag(Long id, String name, Color color) {
+    public Tag(Long id, String name, Task task, Color color) {
         this.name = name;
+        this.task = task;
         this.color = color;
         this.id = id;
     }
 
     public Tag() {}
 
-    public static Tag of(Long id, String name, Color color) {
-        return new Tag(id, name, color);
+    public static Tag of(Long id, String name, Task task, Color color) {
+        return new Tag(id, name, task, color);
     }
 
     public Long getId() { return id; }
@@ -47,6 +56,10 @@ public class Tag {
     public void setColor(Color color) {
         this.color = color;
     }
+
+    public Task getTask() { return task; }
+
+    public void setTask(Task task) { this.task = task; }
 
     @Override
     public boolean equals(Object obj) {
