@@ -25,8 +25,10 @@ Features are constantly being pushed out, but the following contains the list of
 - REST API Structure
 - Customized exception handling and data transfer object responses
   - Includes the status code, message (including errors), timestamp, and data
-- Fully-functional CI/CD pipeline to test & build, push the latest image, and deploy the image on Azure App Service
-- Unit & integration tests with simulate REST API interactions
+- Fully-functional CI/CD pipeline to test & build, push the latest image, and deploy the image on an Oracle VM
+- Unit & integration tests with simulate REST API interactions with an H2 database
+- Cloud storage using Oracle SQL ADB (Autonomous database)
+  - Automatic data removal after 24 hours, and cascading deletion
 
 ## Planned Features
 
@@ -37,18 +39,22 @@ Features are constantly being pushed out, but the following contains the list of
 
 # Current Endpoints
 
-## /api/tasks - GET
+## `/api/tasks` - GET
 
 Returns all the tasks stored in the database up to that point
 
-## /api/tasks - POST
+## `/api/tasks` - POST
 
 Adds a new task, stores it into the database, and returns the URI of the task
 
-## /api/tasks/{TASK_ID} - GET
+## `/api/tasks/{TASK_ID}` - GET
 
 Returns the task stored in the database based on the ID you provide
 
-## /api/tasks/{TASK_ID} - DELETE
+## `/api/tasks/{TASK_ID}` - DELETE
 
-Deletes and returns the task from the database, based on the ID you provide
+Deletes the task from the database, based on the ID you provide. Does **not** return anything
+
+## `/api/tasks/{TASK_ID}` - PUT
+
+Updates the task using provided data. You do **not** need to fully fill out the Task object provided. Fill in any fields that need updating but leave the rest blank (null).
