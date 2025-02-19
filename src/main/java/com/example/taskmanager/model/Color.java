@@ -1,5 +1,6 @@
 package com.example.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,22 +12,33 @@ public class Color {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "color_seq")
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "tag_id", referencedColumnName = "id")
+    @JsonBackReference
+    private Tag tag;
+
+    @Column(name = "red", nullable = false)
     private int red;
+
+    @Column(name = "green", nullable = false)
     private int green;
+
+    @Column(name = "blue", nullable = false)
     private int blue;
 
-    public Color(Long id, int red, int green, int blue) {
+    public Color(Long id, Tag tag, int red, int green, int blue) {
         validate(red, green, blue);
         this.red = red;
         this.green = green;
         this.blue = blue;
         this.id = id;
+        this.tag = tag;
     }
 
     public Color() {}
 
-    public static Color of(Long id, int red, int green, int blue) {
-        return new Color(id, red, green, blue);
+    public static Color of(Long id, Tag tag, int red, int green, int blue) {
+        return new Color(id, tag, red, green, blue);
     }
 
     private void validate(int red, int green, int blue) {
@@ -62,6 +74,10 @@ public class Color {
     public void setBlue(int blue) {
         this.blue = blue;
     }
+
+    public Tag getTag() { return tag; }
+
+    public void setTag(Tag tag) { this.tag = tag; }
 
     @Override
     public boolean equals(Object obj) {

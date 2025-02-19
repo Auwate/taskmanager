@@ -14,13 +14,14 @@ public class TagTests {
 
     @BeforeEach
     void setUp() {
-        this.tag = new Tag(1L, "Sample", Color.of(1L, 1, 2, 3));
+        this.tag = new Tag(1L, "Sample", null, Color.of(
+                1L, null, 1, 2, 3));
     }
 
     @Test
     void testSetColor_Success() {
 
-        Color color = new Color(1L, 1, 2, 3);
+        Color color = new Color(1L, null, 1, 2, 3);
         this.tag.setColor(color);
 
         assertEquals(color, this.tag.getColor());
@@ -30,7 +31,7 @@ public class TagTests {
     @Test
     void testEquals_Failure() {
 
-        Tag wrongTag = new Tag(2L, "Wrong", Color.of(2L, 3, 2, 1));
+        Tag wrongTag = new Tag(2L, "Wrong", null, Color.of(2L, null, 3, 2, 1));
 
         assertNotEquals(wrongTag, this.tag);
 
@@ -39,7 +40,7 @@ public class TagTests {
     @Test
     void testEquals_Success() {
 
-        Tag testTag = new Tag(1L, "Sample", Color.of(1L, 1, 2, 3));
+        Tag testTag = new Tag(1L, "Sample", null, Color.of(1L, null,  1, 2, 3));
 
         assertEquals(testTag, this.tag);
 
@@ -48,7 +49,7 @@ public class TagTests {
     @Test
     void testEqualsNullID_Success() {
 
-        Tag testTag = new Tag(null, "Sample", Color.of(null, 1, 2, 3));
+        Tag testTag = new Tag(null, "Sample", null, Color.of(null, null, 1, 2, 3));
 
         assertEquals(testTag, this.tag);
 
@@ -57,7 +58,7 @@ public class TagTests {
     @Test
     void testEqualsNullID_Failure() {
 
-        Tag wrongTag = new Tag(null, "Wrong", Color.of(null, 1, 2, 3));
+        Tag wrongTag = new Tag(null, "Wrong", null, Color.of(null, null,  1, 2, 3));
 
         assertNotEquals(wrongTag, this.tag);
 

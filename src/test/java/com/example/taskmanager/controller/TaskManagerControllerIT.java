@@ -47,15 +47,24 @@ public class TaskManagerControllerIT {
     @Order(1)
     void testCreateTask() {
 
-        Task payload = new Task(
-                null,
-                "Integration test 1",
-                "Testing integration test 1",
-                0,
-                Tag.of(null, "Test tag", Color.of(
-                        null, 0, 0, 0
-                ))
-        );
+        Color color_payload = new Color();
+        color_payload.setRed(0);
+        color_payload.setGreen(0);
+        color_payload.setBlue(0);
+
+        Tag tag_payload = new Tag();
+        tag_payload.setName("Test tag");
+
+        Task payload = new Task();
+        payload.setId(null);
+        payload.setName("Integration test 1");
+        payload.setDescription("Testing integration test 1");
+        payload.setPriority(0);
+
+        payload.setTag(tag_payload);
+        tag_payload.setTask(payload);
+        tag_payload.setColor(color_payload);
+        color_payload.setTag(tag_payload);
 
         ResponseEntity<ApiResponse<URI>> response = testRestTemplate.exchange(
                 QUERY_URL,
@@ -115,7 +124,7 @@ public class TaskManagerControllerIT {
                 response.getBody().getData().getFirst().getPriority()
         );
         assertEquals(
-                new Tag(1L, "Test tag", Color.of(1L, 0, 0, 0)),
+                new Tag(1L, "Test tag", null, new Color(1L, null, 0, 0, 0)),
                 response.getBody().getData().getFirst().getTag()
         );
         assertEquals(1L, response.getBody().getData().getFirst().getId());
@@ -145,7 +154,7 @@ public class TaskManagerControllerIT {
         );
         assertEquals(1L, response.getBody().getData().getId());
         assertEquals(
-                new Tag(1L, "Test tag", Color.of(1L, 0, 0, 0)),
+                new Tag(1L, "Test tag", null, Color.of(1L, null, 0, 0, 0)),
                 response.getBody().getData().getTag()
         );
 
@@ -155,10 +164,8 @@ public class TaskManagerControllerIT {
     @Order(4)
     void updateTaskById() {
 
-        Color testColor = new Color(1L, 1, 2, 3);
-
-        Tag testTag = new Tag(1L, "Test tag 2", testColor);
-
+        Color testColor = new Color(1L, null, 1, 2, 3);
+        Tag testTag = new Tag(1L, "Test tag 2", null, testColor);
         Task payload = new Task(
                 1L,
                 "Integration test 2",
@@ -166,6 +173,8 @@ public class TaskManagerControllerIT {
                 1,
                 testTag
         );
+        testColor.setTag(testTag);
+        testTag.setTask(payload);
 
         ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(
                 QUERY_URL + "/1",

@@ -38,8 +38,8 @@ public class TaskManagerServiceTests {
                 "N/A",
                 0,
                 Tag.of(
-                        null, "Test tag", Color.of(
-                                1L, 0, 0, 0
+                        null, "Test tag", null, Color.of(
+                                1L, null, 0, 0, 0
                         )
                 )
         );

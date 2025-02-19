@@ -1,5 +1,6 @@
 package com.example.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -13,15 +14,21 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_seq")
     private Long id;
 
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "priority", nullable = false)
     private Integer priority;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATEDAT")
     private LocalDateTime createdAt;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "task", orphanRemoval = true)
+    @JsonManagedReference
     private Tag tag;
 
     public Task(
