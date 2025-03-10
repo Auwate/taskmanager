@@ -58,9 +58,10 @@ jobs:
           sudo docker stop taskmanager || true
           sudo docker rm taskmanager || true
           sudo docker pull "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
-          sudo docker run -d --name taskmanager -p 9090:9090 \
+          sudo docker run --rm -d --name taskmanager -p 9090:9090 \
           -e ORACLE_DB_CONNECTION_STRING="${{ secrets.ORACLE_DB_CONNECTION_STRING }}" \
           -e ORACLE_DB_USER="${{ secrets.ORACLE_DB_USER }}" \
           -e ORACLE_DB_PASSWORD="${{ secrets.ORACLE_DB_PASSWORD }}" \
           -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
           "${{ secrets.DOCKER_HUB_USER }}"/taskmanager:latest
+          sudo docker image prune -f
