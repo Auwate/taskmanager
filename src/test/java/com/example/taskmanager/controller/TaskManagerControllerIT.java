@@ -1,5 +1,7 @@
 package com.example.taskmanager.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.example.taskmanager.dto.ApiResponse;
 import com.example.taskmanager.model.Color;
 import com.example.taskmanager.model.Tag;
@@ -13,13 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,6 +41,26 @@ public class TaskManagerControllerIT {
 
     <T> HttpEntity<T> HttpEntityFactory(T data) {
         return new HttpEntity<>(data);
+    }
+
+    <T> HttpEntity<T> HttpEntityFactory(T data, HttpHeaders headers) {
+        return new HttpEntity<>(data, headers);
+    }
+
+    HttpHeaders httpHeaderFactory() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + generateToken("Test", List.of("USER")));
+        return headers;
+    }
+
+    public String generateToken(String username, List<String> authorities) {
+        Algorithm algorithm = Algorithm.HMAC512("Test");
+        return JWT.create()
+                .withSubject(username)
+                .withClaim("authorities", authorities)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 600 * 1000))
+                .sign(algorithm);
     }
 
     @Test
@@ -69,7 +89,7 @@ public class TaskManagerControllerIT {
         ResponseEntity<ApiResponse<URI>> response = testRestTemplate.exchange(
                 QUERY_URL,
                 HttpMethod.POST,
-                HttpEntityFactory(payload),
+                HttpEntityFactory(payload, httpHeaderFactory()),
                 new ParameterizedTypeReference<>() {}
         );
 
@@ -109,7 +129,7 @@ public class TaskManagerControllerIT {
         ResponseEntity<ApiResponse<List<Task>>> response = testRestTemplate.exchange(
             QUERY_URL,
             HttpMethod.GET,
-            HttpEntityFactory(null),
+            HttpEntityFactory(null, httpHeaderFactory()),
             new ParameterizedTypeReference<>() {}
         );
 
@@ -139,7 +159,7 @@ public class TaskManagerControllerIT {
         ResponseEntity<ApiResponse<Task>> response = testRestTemplate.exchange(
                 QUERY_URL + "/1",
                 HttpMethod.GET,
-                HttpEntityFactory(null),
+                HttpEntityFactory(null, httpHeaderFactory()),
                 new ParameterizedTypeReference<>() {}
         );
 
@@ -179,7 +199,7 @@ public class TaskManagerControllerIT {
         ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(
                 QUERY_URL + "/1",
                 HttpMethod.PUT,
-                HttpEntityFactory(payload),
+                HttpEntityFactory(payload, httpHeaderFactory()),
                 new ParameterizedTypeReference<>() {}
         );
 
@@ -220,7 +240,7 @@ public class TaskManagerControllerIT {
         ResponseEntity<ApiResponse<Task>> response = testRestTemplate.exchange(
                 QUERY_URL + "/1",
                 HttpMethod.DELETE,
-                HttpEntityFactory(null),
+                HttpEntityFactory(null, httpHeaderFactory()),
                 new ParameterizedTypeReference<>() {}
         );
 
