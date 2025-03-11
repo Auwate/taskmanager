@@ -1,5 +1,8 @@
-package com.example.taskmanager.model;
+package com.example.taskmanager.unit.model;
 
+import com.example.taskmanager.model.Color;
+import com.example.taskmanager.model.Tag;
+import com.example.taskmanager.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -17,8 +17,11 @@ import java.util.List;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.secret = secret;
+    }
+
+    private final String secret;
 
     public String extractUsername(String token) {
         try {

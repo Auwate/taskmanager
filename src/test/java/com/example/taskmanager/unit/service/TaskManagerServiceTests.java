@@ -1,4 +1,4 @@
-package com.example.taskmanager.service;
+package com.example.taskmanager.unit.service;
 
 import com.example.taskmanager.exception.server.DatabaseException;
 import com.example.taskmanager.exception.server.ResourceNotFoundException;
@@ -6,6 +6,7 @@ import com.example.taskmanager.model.Color;
 import com.example.taskmanager.model.Tag;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.TaskRepository;
+import com.example.taskmanager.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
