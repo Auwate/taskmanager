@@ -1,5 +1,6 @@
-package com.example.taskmanager.dto;
+package com.example.taskmanager.unit.dto;
 
+import com.example.taskmanager.dto.ApiResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

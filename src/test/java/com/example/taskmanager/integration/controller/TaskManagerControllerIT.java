@@ -1,4 +1,4 @@
-package com.example.taskmanager.controller;
+package com.example.taskmanager.integration.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -38,10 +38,6 @@ public class TaskManagerControllerIT {
 
     private static final String QUERY_URL = "/tasks";
     private static final String RESPONSE_PATH = "/api/tasks";
-
-    <T> HttpEntity<T> HttpEntityFactory(T data) {
-        return new HttpEntity<>(data);
-    }
 
     <T> HttpEntity<T> HttpEntityFactory(T data, HttpHeaders headers) {
         return new HttpEntity<>(data, headers);
