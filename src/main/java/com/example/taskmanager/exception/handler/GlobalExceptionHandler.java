@@ -2,6 +2,7 @@ package com.example.taskmanager.exception.handler;
 
 import com.example.taskmanager.dto.ApiResponse;
 import com.example.taskmanager.exception.server.DatabaseException;
+import com.example.taskmanager.exception.server.UnauthorizedAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<String>> handleResponseStatusException(ResourceNotFoundException exception) {
+    public ResponseEntity<ApiResponse<String>> handleResourceNotFoundException(ResourceNotFoundException exception) {
 
         String message = "Resource not found.";
 
@@ -41,6 +42,21 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ApiResponse<String>> handleUnauthorizedAccessException(UnauthorizedAccessException exception) {
+
+        String message = "The data you tried accessing is unavailable.";
+
+        ApiResponse<String> response = ApiResponse.of(
+                HttpStatus.FORBIDDEN.value(),
+                message,
+                exception.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
 
     }
 
