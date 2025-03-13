@@ -117,11 +117,7 @@ public class TaskController {
             logger.debug("Successfully called updateTaskById(id)");
         }
 
-        try {
-            taskService.updateTask(id, task);
-        } catch (Exception e) {
-            logger.error("Exception: {}", e.getMessage());
-        }
+        taskService.updateTask(id, task);
 
         ApiResponse<Void> response = ApiResponse.of(
                 HttpStatus.OK.value(),

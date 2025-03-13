@@ -10,6 +10,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,12 +27,31 @@ import java.util.List;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
-    private UserService userService;
+    public JwtRequestFilter(
+            UserService userService,
+            JwtUtil jwtUtil
+    ) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.exceptionManager = new FilterExceptionManager();
+    }
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
-    private static final FilterExceptionManager exceptionManager = new FilterExceptionManager();
+    public JwtRequestFilter(
+            UserService userService,
+            JwtUtil jwtUtil,
+            FilterExceptionManager filterExceptionManager
+    ) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.exceptionManager = filterExceptionManager;
+    }
+
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+
+    private final FilterExceptionManager exceptionManager;
 
     @Override
     protected void doFilterInternal(
@@ -40,6 +61,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authorization header: {}", authorizationHeader);
+        }
 
         List<String> authorities = null;
         String username = null;
@@ -61,8 +86,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
 
             if (jwtUtil.validateToken(jwt)) {
+
                 authorities = jwtUtil.extractAuthorities(jwt);
                 username = jwtUtil.extractUsername(jwt);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Username: {}, Authorities: {}", username, authorities);
+                }
+
             }
 
         } catch (IndexOutOfBoundsException exception) {
@@ -100,6 +131,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             // Set the SecurityContextHolder's authentication with the token
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authentication: {}", (
+                        (UserDetails) (
+                                SecurityContextHolder
+                                        .getContext()
+                                        .getAuthentication()
+                                        .getPrincipal()
+                        )).getUsername()
+                );
+            }
 
         }
 

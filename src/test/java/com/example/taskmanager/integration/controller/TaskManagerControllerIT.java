@@ -1,4 +1,4 @@
-package com.example.taskmanager.controller;
+package com.example.taskmanager.integration.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -39,21 +39,23 @@ public class TaskManagerControllerIT {
     private static final String QUERY_URL = "/tasks";
     private static final String RESPONSE_PATH = "/api/tasks";
 
-    <T> HttpEntity<T> HttpEntityFactory(T data) {
-        return new HttpEntity<>(data);
-    }
-
     <T> HttpEntity<T> HttpEntityFactory(T data, HttpHeaders headers) {
         return new HttpEntity<>(data, headers);
     }
 
     HttpHeaders httpHeaderFactory() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + generateToken("Test", List.of("USER")));
+        headers.set("Authorization", "Bearer " + generateToken("1", List.of("USER")));
         return headers;
     }
 
-    public String generateToken(String username, List<String> authorities) {
+    HttpHeaders invalidHeaderFactory() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + generateToken("2", List.of("USER")));
+        return headers;
+    }
+
+    private String generateToken(String username, List<String> authorities) {
         Algorithm algorithm = Algorithm.HMAC512("Test");
         return JWT.create()
                 .withSubject(username)
@@ -100,24 +102,28 @@ public class TaskManagerControllerIT {
 
         assertEquals(1, taskRepository.findAll().size());
         assertEquals(
-                taskRepository.findById(1L).orElseThrow().getName(),
-                payload.getName()
+                payload.getName(),
+                taskRepository.findById(1L).orElseThrow().getName()
         );
         assertEquals(
-                taskRepository.findById(1L).orElseThrow().getDescription(),
-                payload.getDescription()
+                payload.getDescription(),
+                taskRepository.findById(1L).orElseThrow().getDescription()
         );
         assertEquals(
-                taskRepository.findById(1L).orElseThrow().getPriority(),
-                payload.getPriority()
+                payload.getPriority(),
+                taskRepository.findById(1L).orElseThrow().getPriority()
         );
         assertEquals(
-                taskRepository.findById(1L).orElseThrow().getTag(),
-                payload.getTag()
+                payload.getTag(),
+                taskRepository.findById(1L).orElseThrow().getTag()
         );
         assertEquals(
-                taskRepository.findById(1L).orElseThrow().getId(),
-                1L
+                1L,
+                taskRepository.findById(1L).orElseThrow().getId()
+        );
+        assertEquals(
+                1L,
+                taskRepository.findById(1L).orElseThrow().getUser().getId()
         );
 
     }
@@ -149,11 +155,31 @@ public class TaskManagerControllerIT {
         );
         assertEquals(1L, response.getBody().getData().getFirst().getId());
         assertEquals(1, response.getBody().getData().size());
+        assertEquals(1L, taskRepository.findAll().getFirst().getUser().getId());
 
     }
 
     @Test
     @Order(3)
+    void getTasksWrongCredentials() {
+
+        ResponseEntity<ApiResponse<List<Task>>> response = testRestTemplate.exchange(
+                QUERY_URL,
+                HttpMethod.GET,
+                HttpEntityFactory(null, invalidHeaderFactory()),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        // Assertions
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Success", response.getBody().getMessage());
+        assertTrue(response.getBody().getData().isEmpty());
+
+    }
+
+    @Test
+    @Order(4)
     void getTaskById() {
 
         ResponseEntity<ApiResponse<Task>> response = testRestTemplate.exchange(
@@ -181,7 +207,26 @@ public class TaskManagerControllerIT {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
+    void getTaskByIdIncorrectCredentials() {
+
+        ResponseEntity<ApiResponse<String>> response = testRestTemplate.exchange(
+                QUERY_URL + "/1",
+                HttpMethod.GET,
+                HttpEntityFactory(null, invalidHeaderFactory()),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        // Assertions
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Resource not found.", response.getBody().getMessage());
+        assertEquals("The provided resource could not be found in the database.", response.getBody().getData());
+
+    }
+
+    @Test
+    @Order(6)
     void updateTaskById() {
 
         Color testColor = new Color(1L, null, 1, 2, 3);
@@ -191,7 +236,8 @@ public class TaskManagerControllerIT {
                 "Integration test 2",
                 "Testing integration test 2",
                 1,
-                testTag
+                testTag,
+                null
         );
         testColor.setTag(testTag);
         testTag.setTask(payload);
@@ -234,7 +280,58 @@ public class TaskManagerControllerIT {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
+    void updateTaskByIdWrongCredentials() {
+
+        Color testColor = new Color(1L, null, 1, 2, 3);
+        Tag testTag = new Tag(1L, "Test tag 3", null, testColor);
+        Task payload = new Task(
+                1L,
+                "Integration test 3",
+                "Testing integration test 3",
+                1,
+                testTag,
+                null
+        );
+        testColor.setTag(testTag);
+        testTag.setTask(payload);
+
+        ResponseEntity<ApiResponse<String>> response = testRestTemplate.exchange(
+                QUERY_URL + "/1",
+                HttpMethod.PUT,
+                HttpEntityFactory(payload, invalidHeaderFactory()),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        // Assertions
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Resource not found.", response.getBody().getMessage());
+        assertEquals("The provided resource could not be found in the database.", response.getBody().getData());
+
+    }
+
+    @Test
+    @Order(8)
+    void deleteTaskByIdWrongCredentials() {
+
+        ResponseEntity<ApiResponse<String>> response = testRestTemplate.exchange(
+                QUERY_URL + "/1",
+                HttpMethod.DELETE,
+                HttpEntityFactory(null, invalidHeaderFactory()),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        // Assertions
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Resource not found.", response.getBody().getMessage());
+        assertEquals("The provided resource could not be found in the database.", response.getBody().getData());
+
+    }
+
+    @Test
+    @Order(9)
     void deleteTaskById() {
 
         ResponseEntity<ApiResponse<Task>> response = testRestTemplate.exchange(
