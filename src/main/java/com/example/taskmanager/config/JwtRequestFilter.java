@@ -10,6 +10,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +35,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
         this.exceptionManager = new FilterExceptionManager();
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
     public JwtRequestFilter(
             UserService userService,
@@ -58,6 +62,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String authorizationHeader = request.getHeader("Authorization");
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authorization header: {}", authorizationHeader);
+        }
+
         List<String> authorities = null;
         String username = null;
         String jwt;
@@ -78,8 +86,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
 
             if (jwtUtil.validateToken(jwt)) {
+
                 authorities = jwtUtil.extractAuthorities(jwt);
                 username = jwtUtil.extractUsername(jwt);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Username: {}, Authorities: {}", username, authorities);
+                }
+
             }
 
         } catch (IndexOutOfBoundsException exception) {
@@ -117,6 +131,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             // Set the SecurityContextHolder's authentication with the token
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authentication: {}", (
+                        (UserDetails) (
+                                SecurityContextHolder
+                                        .getContext()
+                                        .getAuthentication()
+                                        .getPrincipal()
+                        )).getUsername()
+                );
+            }
 
         }
 

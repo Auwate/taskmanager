@@ -1,5 +1,6 @@
 package com.example.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -31,18 +32,25 @@ public class Task {
     @JsonManagedReference
     private Tag tag;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @JsonBackReference
+    private User user;
+
     public Task(
             Long id,
             String name,
             String description,
             Integer priority,
-            Tag tag
+            Tag tag,
+            User user
     ) {
         this.name = name;
         this.description = description;
         this.priority = priority;
         this.tag = tag;
         this.id = id;
+        this.user = user;
     }
 
     public Task() {}
@@ -52,9 +60,10 @@ public class Task {
             String name,
             String description,
             Integer priority,
-            Tag tag
+            Tag tag,
+            User user
     ) {
-        return new Task(id, name, description, priority, tag);
+        return new Task(id, name, description, priority, tag, user);
     }
 
     public LocalDateTime getCreatedAt() {
@@ -98,6 +107,10 @@ public class Task {
     public void setTag(Tag tag) {
         this.tag = tag;
     }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
 
     @Override
     public boolean equals(Object obj) {
