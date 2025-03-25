@@ -1,4 +1,4 @@
-package com.example.taskmanager.util;
+package com.example.taskmanager.service;
 
 
 import com.auth0.jwt.JWT;
@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class JwtUtil {
+public class JwtService {
 
-    public JwtUtil(@Value("${jwt.secret}") String secret) {
+    public JwtService(@Value("${jwt.secret}") String secret) {
         this.secret = secret;
     }
 

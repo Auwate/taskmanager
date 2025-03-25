@@ -1,12 +1,12 @@
-package com.example.taskmanager.unit.util;
+package com.example.taskmanager.unit.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.taskmanager.exception.server.InvalidJwtException;
-import com.example.taskmanager.util.JwtUtil;
+import com.example.taskmanager.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
 import java.util.Date;
@@ -14,14 +14,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JwtUtilTests {
+@ActiveProfiles("test")
+public class JwtServiceTests {
 
     @BeforeEach
     void setUp() {
-        this.jwtUtil = new JwtUtil("Test");
+        this.jwtService = new JwtService("Test");
     }
 
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
 
     private String generateToken() {
         return JWT.create()
@@ -33,7 +34,7 @@ public class JwtUtilTests {
     }
 
     /**
-     * Test that JwtUtil correctly validates that a JWT is not expired
+     * Test that JwtService correctly validates that a JWT is not expired
      */
     @Test
     void testValidate() {
@@ -41,12 +42,12 @@ public class JwtUtilTests {
         String testJWT = generateToken();
 
         // Assertions
-        assertTrue(jwtUtil.validateToken(testJWT));
+        assertTrue(jwtService.validateToken(testJWT));
 
     }
 
     /**
-     * Test that JwtUtil correctly throws an exception with an expired JWT
+     * Test that JwtService correctly throws an exception with an expired JWT
      */
     @Test
     void testValidateExpired() {
@@ -56,12 +57,12 @@ public class JwtUtilTests {
                 .withIssuedAt(new Date())
                 .sign(Algorithm.HMAC256("Test"));
 
-        assertThrows(InvalidJwtException.class, () -> jwtUtil.validateToken(testJwt));
+        assertThrows(InvalidJwtException.class, () -> jwtService.validateToken(testJwt));
 
     }
 
     /**
-     * Test that JwtUtil will throw an exception with an invalid JWT
+     * Test that JwtService will throw an exception with an invalid JWT
      */
     @Test
     void testValidateInvalid() {
@@ -71,12 +72,12 @@ public class JwtUtilTests {
                 .withIssuedAt(new Date())
                 .sign(Algorithm.HMAC256("Invalid_secret"));
 
-        assertThrows(InvalidJwtException.class, () -> jwtUtil.validateToken(testJwt));
+        assertThrows(InvalidJwtException.class, () -> jwtService.validateToken(testJwt));
 
     }
 
     /**
-     * Test that JwtUtil can successfully extract the username
+     * Test that JwtService can successfully extract the username
      */
     @Test
     void testExtractUsername() {
@@ -84,12 +85,12 @@ public class JwtUtilTests {
         String testJWT = generateToken();
 
         // Assertions
-        assertEquals("Test user", jwtUtil.extractUsername(testJWT));
+        assertEquals("Test user", jwtService.extractUsername(testJWT));
 
     }
 
     /**
-     * Test that JwtUtil can successfully extract the authority
+     * Test that JwtService can successfully extract the authority
      */
     @Test
     void testExtractAuthority() {
@@ -97,7 +98,7 @@ public class JwtUtilTests {
         String testJWT = generateToken();
 
         // Assertions
-        assertEquals("USER", jwtUtil.extractAuthorities(testJWT).getFirst());
+        assertEquals("USER", jwtService.extractAuthorities(testJWT).getFirst());
 
     }
 

@@ -5,9 +5,10 @@ import com.example.taskmanager.exception.handler.FilterExceptionManager;
 import com.example.taskmanager.exception.server.InvalidJwtException;
 import com.example.taskmanager.exception.server.JwtNotProvidedException;
 import com.example.taskmanager.service.UserService;
-import com.example.taskmanager.util.JwtUtil;
+import com.example.taskmanager.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -29,10 +31,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     public JwtRequestFilter(
             UserService userService,
-            JwtUtil jwtUtil
+            JwtService jwtService
     ) {
         this.userService = userService;
-        this.jwtUtil = jwtUtil;
+        this.jwtService = jwtService;
         this.exceptionManager = new FilterExceptionManager();
     }
 
@@ -40,16 +42,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     public JwtRequestFilter(
             UserService userService,
-            JwtUtil jwtUtil,
+            JwtService jwtService,
             FilterExceptionManager filterExceptionManager
     ) {
         this.userService = userService;
-        this.jwtUtil = jwtUtil;
+        this.jwtService = jwtService;
         this.exceptionManager = filterExceptionManager;
     }
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
     private final FilterExceptionManager exceptionManager;
 
@@ -60,35 +62,41 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authorizationHeader = request.getHeader("Authorization");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authorization header: {}", authorizationHeader);
-        }
-
-        List<String> authorities = null;
-        String username = null;
-        String jwt;
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-
+        if (request.getCookies() == null || request.getCookies().length == 0) {
             exceptionManager.handleJwtNotProvidedException(
                     new JwtNotProvidedException("Access token not provided."),
                     response
             );
-
             return;
-
         }
+
+        String access_token = null;
+
+        try {
+            access_token = Arrays.stream(request.getCookies())
+                    .filter(cookie -> cookie.getName().equals("access_token"))
+                    .toList().getFirst().getValue();
+        } catch (Exception exception) {
+            exceptionManager.handleJwtNotProvidedException(
+                    new JwtNotProvidedException("Access token not provided as a cookie."),
+                    response
+            );
+            return;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Access token: {}", access_token);
+        }
+
+        List<String> authorities = null;
+        String username = null;
 
         try {
 
-            jwt = authorizationHeader.substring(7);
+            if (jwtService.validateToken(access_token)) {
 
-            if (jwtUtil.validateToken(jwt)) {
-
-                authorities = jwtUtil.extractAuthorities(jwt);
-                username = jwtUtil.extractUsername(jwt);
+                authorities = jwtService.extractAuthorities(access_token);
+                username = jwtService.extractUsername(access_token);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Username: {}, Authorities: {}", username, authorities);
