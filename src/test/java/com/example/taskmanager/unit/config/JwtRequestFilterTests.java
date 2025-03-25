@@ -8,9 +8,10 @@ import com.example.taskmanager.exception.handler.FilterExceptionManager;
 import com.example.taskmanager.exception.server.InvalidJwtException;
 import com.example.taskmanager.exception.server.JwtNotProvidedException;
 import com.example.taskmanager.service.UserService;
-import com.example.taskmanager.util.JwtUtil;
+import com.example.taskmanager.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -30,6 +32,7 @@ import java.util.stream.Stream;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 public class JwtRequestFilterTests {
 
     private JwtRequestFilter jwtRequestFilter;
@@ -51,8 +54,8 @@ public class JwtRequestFilterTests {
 
     @BeforeEach
     void setUp() {
-        JwtUtil jwtUtil = new JwtUtil("Test");
-        this.jwtRequestFilter = new JwtRequestFilter(userService, jwtUtil, filterExceptionManager);
+        JwtService jwtService = new JwtService("Test");
+        this.jwtRequestFilter = new JwtRequestFilter(userService, jwtService, filterExceptionManager);
     }
 
     /**
@@ -72,7 +75,9 @@ public class JwtRequestFilterTests {
                 .withExpiresAt(new Date(System.currentTimeMillis() + Duration.ofMinutes(10).toMillis()))
                 .sign(algorithm);
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
+        Cookie access_token = new Cookie("access_token", jwt);
+
+        when(request.getCookies()).thenReturn(new Cookie[]{access_token});
         when(userService.loadUserByJWT("Test user", List.of("USER"))).thenReturn(new User(
                 "Test User",
                 "JWT-AUTHENTICATED",
@@ -82,7 +87,7 @@ public class JwtRequestFilterTests {
         jwtRequestFilter.doFilter(request, response, filterChain);
 
         // Assertions
-        verify(request, times(1)).getHeader("Authorization");
+        verify(request, times(3)).getCookies();
         verify(filterChain, times(1)).doFilter(request, response);
 
     }
@@ -95,12 +100,12 @@ public class JwtRequestFilterTests {
     @Test
     void testFilterThrowsWhenHeaderIsNull() throws ServletException, IOException {
 
-        when(request.getHeader("Authorization")).thenReturn(null);
+        when(request.getCookies()).thenReturn(null);
 
         jwtRequestFilter.doFilter(request, response, filterChain);
 
         // Assertions
-        verify(request, times(1)).getHeader("Authorization");
+        verify(request, times(1)).getCookies();
         verify(filterExceptionManager, times(1)).handleJwtNotProvidedException(
                 any(JwtNotProvidedException.class),
                 eq(response)
@@ -116,12 +121,12 @@ public class JwtRequestFilterTests {
     @Test
     void testFilterThrowsWhenHeaderIsEmpty() throws ServletException, IOException {
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer");
+        when(request.getCookies()).thenReturn(new Cookie[]{});
 
         jwtRequestFilter.doFilter(request, response, filterChain);
 
         // Assertions
-        verify(request, times(1)).getHeader("Authorization");
+        verify(request, times(2)).getCookies();
         verify(filterExceptionManager, times(1)).handleJwtNotProvidedException(
                 any(JwtNotProvidedException.class),
                 eq(response)
@@ -146,12 +151,14 @@ public class JwtRequestFilterTests {
                 .withExpiresAt(new Date())
                 .sign(algorithm);
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
+        Cookie access_token = new Cookie("access_token", jwt);
+
+        when(request.getCookies()).thenReturn(new Cookie[]{access_token});
 
         jwtRequestFilter.doFilter(request, response, filterChain);
 
         // Assertions
-        verify(request, times(1)).getHeader("Authorization");
+        verify(request, times(3)).getCookies();
         verify(filterExceptionManager, times(1)).handleInvalidJwtException(
                 any(InvalidJwtException.class),
                 eq(response)
