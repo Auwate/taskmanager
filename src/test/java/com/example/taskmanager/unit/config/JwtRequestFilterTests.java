@@ -75,7 +75,7 @@ public class JwtRequestFilterTests {
                 .withExpiresAt(new Date(System.currentTimeMillis() + Duration.ofMinutes(10).toMillis()))
                 .sign(algorithm);
 
-        Cookie access_token = new Cookie("access_token", jwt);
+        Cookie access_token = new Cookie("taskmanager_access_token", jwt);
 
         when(request.getCookies()).thenReturn(new Cookie[]{access_token});
         when(userService.loadUserByJWT("Test user", List.of("USER"))).thenReturn(new User(
@@ -151,7 +151,7 @@ public class JwtRequestFilterTests {
                 .withExpiresAt(new Date())
                 .sign(algorithm);
 
-        Cookie access_token = new Cookie("access_token", jwt);
+        Cookie access_token = new Cookie("taskmanager_access_token", jwt);
 
         when(request.getCookies()).thenReturn(new Cookie[]{access_token});
 
