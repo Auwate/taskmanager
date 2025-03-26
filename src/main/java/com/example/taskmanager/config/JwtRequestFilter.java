@@ -71,9 +71,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         String access_token = null;
-        for (Cookie cookie : request.getCookies()) {
-            logger.info(cookie.getName());
-        }
+
         try {
             access_token = Arrays.stream(request.getCookies())
                     .filter(cookie -> cookie.getName().equals("taskmanager_access_token"))
