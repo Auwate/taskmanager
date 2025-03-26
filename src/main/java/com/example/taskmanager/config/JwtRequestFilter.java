@@ -64,21 +64,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (request.getCookies() == null || request.getCookies().length == 0) {
             exceptionManager.handleJwtNotProvidedException(
-                    new JwtNotProvidedException("Access token not provided."),
+                    new JwtNotProvidedException("No tokens were provided."),
                     response
             );
             return;
         }
 
         String access_token = null;
-
+        for (Cookie cookie : request.getCookies()) {
+            logger.info(cookie.getName());
+        }
         try {
             access_token = Arrays.stream(request.getCookies())
                     .filter(cookie -> cookie.getName().equals("taskmanager_access_token"))
                     .toList().getFirst().getValue();
         } catch (Exception exception) {
             exceptionManager.handleJwtNotProvidedException(
-                    new JwtNotProvidedException("Access token not provided as a cookie."),
+                    new JwtNotProvidedException("Access token not provided."),
                     response
             );
             return;
@@ -107,7 +109,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         } catch (IndexOutOfBoundsException exception) {
 
             exceptionManager.handleJwtNotProvidedException(
-                    new JwtNotProvidedException("Access token not provided."),
+                    new JwtNotProvidedException("Access token is not valid."),
                     response
             );
 
@@ -116,7 +118,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         } catch (InvalidJwtException exception) {
 
             exceptionManager.handleInvalidJwtException(
-                    new InvalidJwtException("Access token not provided."),
+                    new InvalidJwtException("Access token is invalid or expired."),
                     response
             );
 
