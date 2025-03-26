@@ -45,13 +45,13 @@ public class TaskManagerControllerIT {
 
     HttpHeaders httpHeaderFactory() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.COOKIE, "access_token=" + generateToken("1", List.of("USER")));
+        headers.set(HttpHeaders.COOKIE, "taskmanager_access_token=" + generateToken("1", List.of("USER")));
         return headers;
     }
 
     HttpHeaders invalidHeaderFactory() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.COOKIE, "access_token=" + generateToken("2", List.of("USER")));
+        headers.set(HttpHeaders.COOKIE, "taskmanager_access_token=" + generateToken("2", List.of("USER")));
         return headers;
     }
 
