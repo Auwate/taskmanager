@@ -22,7 +22,7 @@ public class CorsConfig {
     ) {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(location));
-        configuration.setAllowedMethods(List.of("GET","POST","OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET","POST","OPTIONS","DELETE","PUT"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -40,7 +40,7 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(location)
-                        .allowedMethods("GET","POST","OPTIONS")
+                        .allowedMethods("GET","POST","OPTIONS","DELETE","PUT")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
